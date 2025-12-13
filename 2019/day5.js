@@ -1,88 +1,3 @@
-//   const output = [];
-//   const data = x.split(",");
-//   const actual = data.map((a) => parseInt(a));
-//   const dup = actual.slice();
-
-//   function findNumForAddMul(placeModes, array,index) {
-//     let num1, num2, result;
-//     if (placeModes[2] === "0") {
-//       num1 = array[array[index + 1]];
-//     } else {
-//       num1 = array[index + 1];
-//     }
-//     if (placeModes[1] === "0") {
-//       num2 = array[array[index + 2]];
-//     } else {
-//       num2 = array[index + 2];
-//     }
-//     if (placeModes[0] === "0") {
-//       result = array[index + 3];
-//     } else {
-//       result = index + 3;
-//     }
-//     return [num1, num2, result];
-//   }
-
-//   function findAddressFor(placeModes, array,index) {
-//     let resultIndex;
-//     if (placeModes[0] === "0") {
-//       resultIndex = array[index + 1];
-//     } else {
-//       resultIndex =index + 1;
-//     }
-//     return resultIndex;
-//   }
-
-//   function process(dup) {
-//     let index = 0;
-//     let put,num1,num2,result;
-//     while (index < dup.length) {
-//       const value = dup[index];
-//       const numberInarray = value.toString().split("");
-//       const instruction = parseInt(numberInarray.slice(-2).join(""));
-//       let placeModes = numberInarray.slice(0, numberInarray.length - 2).join("");
-//       if (instruction === 3 || instruction === 4) {
-//         if (placeModes.length !== 1) placeModes = placeModes.padStart(1, "0");
-//         const arrayOfNum = findAddressFor(placeModes, dup,index);
-//       put = arrayOfNum;
-//       }
-//       if(instruction === 1 || instruction === 2){
-//       if (placeModes.length < 3) placeModes = placeModes.padStart(3, "0");
-//       console.log('oyy in padding for add',placeModes);
-//         const arrayOfNum = findNumForAddMul(placeModes, dup,index);
-//         num1 = arrayOfNum[0];
-//         num2 = arrayOfNum[1];
-//         result = arrayOfNum[2];
-// console.log({num1,num2,result});
-//       }
-
-//       switch (instruction) {
-//         case 1:
-//           dup[result] = num1 + num2;
-//           index = index + 4;
-//           break;
-//         case 2:
-//           dup[result] = num1 * num2;
-//           index = index + 4;
-//           break;
-//         case 99:
-//           index = dup.length;
-//           break;
-//         case 3:
-//           dup[put] = 1;
-//           index = index + 2;
-//           break;
-//         case 4:
-//           output.push(dup[put]);
-//           index = index + 2;
-//           break;
-//       }
-//     }
-//     console.log('hi')
-
-//     return dup;
-//   }
-
 import { chunk } from "jsr:@std/collections";
 
 const displayGrid = (computer) => {
@@ -92,6 +7,7 @@ const displayGrid = (computer) => {
     const styles = [];
     const line = row.map((cell, colIndex) => {
       const absoluteIndex = rowIndex * 12 + colIndex;
+      //console.log({absoluteIndex},'computer index = ',computer.index)
       styles.push(
         absoluteIndex === computer.index
           ? "color:red;font-weight:bold"
@@ -150,18 +66,48 @@ const performHalt = (computer) => {
   computer.isHalted = true;
 };
 
+const getAddress =(program,index) => {
+  const instructionInStr = program[index].toString();
+  const modeOfResult = instructionInStr.slice(0,instructionInStr.length - 2);
+  if(modeOfResult.length === 0){
+    return program[index + 1];
+  }
+  return index + 1;
+}
+
+const performOutput = (computer) => {
+  const program = computer.program;
+  const index = computer.index;
+  const resultIndex = getAddress(program,index);
+  console.log('output is',program[resultIndex]);
+  computer.index = index + 2;
+}
+
+const takeInput = (computer) => {
+  const program = computer.program;
+  const index = computer.index;
+  const resultIndex = getAddress(program,index);
+  console.log('pacing 1 index in ',resultIndex,program[resultIndex]);
+  program[resultIndex] = 1;
+  console.log('after placing',program[resultIndex]);
+  computer.index = index + 2;
+}
+
+
 function operationsOnProgram(computer) {
   while (computer.isHalted === false) {
     const operations = {
       1: performAdd,
       2: performMul,
       99: performHalt,
-      //4: performOutput,
-      //3: takeInput,
+      4: performOutput,
+      3: takeInput,
     };
-    prompt("enter");
-    console.clear();
-    console.log(displayGrid(computer));
+  //  prompt("enter");
+ // process.stdout.write("\x1b[2J\x1b[H");
+    //console.clear();
+    displayGrid(computer);
+    console.log('index is ',computer.index)  
     const WholeInstruction = computer.program[computer.index].toString();
     const instruction = parseInt(WholeInstruction.slice(WholeInstruction.length - 2));
     console.log(instruction);
@@ -169,5 +115,5 @@ function operationsOnProgram(computer) {
   }
   return computer;
 }
-const puzzleInput = "1001,4,66,4,33"
+
 console.log("last answer", parseInput(puzzleInput));
