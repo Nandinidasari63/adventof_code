@@ -1,25 +1,47 @@
-const alarm = (data) => {
-  const x = data.split(",");
-  const actual = x.map((a) => parseInt(a));
-  const y = actual.slice();
-  return process(y);
-};
+  const parseInput = (puzzleInput) => {
+    const program = eval("[" + puzzleInput + "]");
+    const computer = { program, index: 0, isHalted: false };
+    console.log(computer);
+    return operationsOnProgram(computer);
+  };
 
-function process(dup) {
-  for (let index = 0; index < dup.length;) {
-    switch (dup[index]) {
-      case 1:
-        dup[dup[index + 3]] = dup[dup[index + 1]] + dup[dup[index + 2]];
-        console.log(dup[index +3],dup[dup[index+3]])
-        break;
-      case 2:
-        dup[dup[index+3]] = dup[dup[index+1]] * dup[dup[index+2]];
-        break;
-      case 99:
-        index = dup.length;
-        break;
+  const getArguments = (program, index) => program.slice(index + 1, index + 4);
+
+  const performAdd = (computer) => {
+    const program = computer.program;
+    const index = computer.index;
+    const [input1, input2, result] = getArguments(program, index);
+    computer.index = index + 4;
+    program[result] = program[input1] + program[input2];
+
+  };
+
+  const performMul = (computer) => {
+    const program = computer.program;
+    const index = computer.index;
+    const [input1, input2, result] = getArguments(program, index);
+    computer.index = index + 4;
+    program[result] = program[input1] * program[input2];
+  };
+
+  const performHalt = (computer) => {
+    console.log('hi in 99');
+    computer.isHalted = true;
+  };
+
+  function operationsOnProgram(computer) {
+    while (computer.isHalted === false) {
+      const operations = {
+        1: performAdd,
+        2: performMul,
+        99: performHalt,
+      };
+    operations[computer.program[computer.index]](computer);
     }
-    index+=4;
+    return computer;
   }
-  return dup;
-}
+
+
+  // const displayGrid = (program) => {
+  // const 
+  // }
