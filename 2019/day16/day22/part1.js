@@ -1,34 +1,21 @@
-const dealIncrement = (deck, incNum) => {
-  let copyDeck = Array.from({ length: deck.length });
-  copyDeck[0] = deck[0];
-  let num = incNum;
-  for (let index = 1; index < deck.length; index++) {
+// dealIntoNewStack = new = (M - 1) - x (m = size , x = 2020)
+// cut :new = x - N
+// incrememt : new = x * incvalue   (mod 10)
 
-    copyDeck[num] = deck[index];
-
-
-    num = (num + incNum) % deck.length;
-
-  }
-  return copyDeck;
+const dealIncrement = (deckPosition, size, item) => {
+  console.log({ deckPosition, item, size });
+  return (deckPosition * item) % size;
 };
 
-const dealToNewStack = (deck) => [...deck].reverse();
+const dealToNewStack = (deckPosition, size) => (size - 1) - deckPosition;
 
-
-const cutNCards = (deck, n) => {
-  if (n > 0) {
-    return deck.slice(n).concat(deck.slice(0, n));
-  } else {
-    return deck.slice(deck.length + n).concat(deck.slice(0, deck.length + n));
-  }
-};
+const cutNCards = (deckPosition, size, item) => deckPosition - item;
 
 function main() {
-  let deck = Array.from({ length: 10007 }, (_, i) => i);
   const text = Deno.readTextFileSync("part1_input.txt");
   const instructions = text.split("\n");
-
+  let deckPosition = 2019;
+  const size = 10007;
   const obj = {
     "deal with increment": dealIncrement,
     "deal into new stack": dealToNewStack,
@@ -36,16 +23,20 @@ function main() {
   };
   for (let ins of instructions) {
     let item;
-    console.log(ins,deck)
-    if (ins !== "deal into new stack")
-    {
+    if (ins !== "deal into new stack") {
       let items = ins.split(" ");
       item = parseInt(items[items.length - 1]);
       ins = items.slice(0, items.length - 1).join(" ");
     }
-    deck = obj[ins](deck,item);
+    deckPosition = obj[ins](deckPosition, size, item);
+    console.log({ deckPosition });
   }
-  return deck;
+  return deckPosition;
 }
-const output = main();
-console.log(output.indexOf(2019))
+
+const cardPosition = () => {
+  const value = main();
+  if (value < 0) return (10007 + value);
+  return value;
+};
+console.log(cardPosition());
